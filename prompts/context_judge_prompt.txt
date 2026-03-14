@@ -1,0 +1,5 @@
+
+Determine if the following user message includes background context or is just a direct question.
+Output "context_provided" or "context_missing"
+
+Message: {input}
