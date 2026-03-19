@@ -1,8 +1,7 @@
 import os 
-from langchain_core.prompts import PromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 
-from tools import tool
+from tools import tool , PromptTemplate
 from src import llm , BASE_DIR
 
 
@@ -11,9 +10,9 @@ context_prompt = PromptTemplate.from_template(
 context_chain = context_prompt | llm | StrOutputParser()
 
 @tool
-def context_presence_tool(context:str) -> str:
-    """Check if the user query already contains enough context or needs external search."""
-    result = context_chain.invoke({"input":context})
+def context_presence_tool(user_input:str) -> str:
+    """Check if the user_input already contains context or needs external search."""
+    result = context_chain.invoke({"input": user_input})
     return result
 
 # Smoke Test
@@ -25,5 +24,5 @@ if __name__ == "__main__":
         What is LangChain used for?
         """
     print(f"User Query: {user_query}")
-    print(context_presence_tool.invoke({"context": user_query}))
+    print(context_presence_tool.invoke({"user_input": user_query}))
     print("="*50)
