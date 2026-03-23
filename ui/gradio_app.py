@@ -9,70 +9,44 @@ def run_agent(user_message: str, history: list):
     history.append({"role": "user", "content": user_message})
     yield history
 
-    # ✅ Fix 1: history items are plain dicts — use m["role"], not m.role
     lc_messages = build_lc_messages(
-        [{"role": m["role"], "content": m["content"]}
-         for m in history[:-1]
-         if isinstance(m, dict) and m.get("metadata") is None],   # skip tool-call accordion entries
+        [m for m in history[:-1] if m.get("metadata") is None],
         user_message
     )
-
-    pending_indices: dict[str, int] = {}
 
     for step in agent.stream({"messages": lc_messages}):
         _, node_state = next(iter(step.items()))
 
         for msg in node_state.get("messages", []):
 
-            # ── Agent calling a tool → open accordion with spinner ──
+            # 🛠️ Tool call + result مع بعض
             if isinstance(msg, AIMessage) and msg.tool_calls:
                 for tc in msg.tool_calls:
-                    args_str = json.dumps(tc["args"], indent=2)
-                    idx = len(history)
                     history.append({
                         "role": "assistant",
-                        "content": f"```json\n{args_str}\n```",
+                        "content": f"```json\n{tc['args']}\n```",
                         "metadata": {
-                            "title": f"🛠️ Calling `{tc['name']}`",
+                            "title": f"🛠️ `{tc['name']}`",
                             "status": "pending",
                         }
                     })
-                    pending_indices[tc["name"]] = idx
                 yield history
 
-            # ── Tool result → close the accordion ──
             elif isinstance(msg, ToolMessage):
-                preview = str(msg.content)[:500]
-                ellipsis = "..." if len(str(msg.content)) > 500 else ""
-                idx = pending_indices.get(msg.name)
-                if idx is not None:
-                    existing_content = history[idx]["content"]   # ✅ dict access
-                    history[idx] = {
-                        "role": "assistant",
-                        "content": existing_content + f"\n\n**Result:**\n```\n{preview}{ellipsis}\n```",
-                        "metadata": {
-                            "title": f"✅ `{msg.name}` — done",
-                            "status": "done",
-                        }
+                history.append({
+                    "role": "assistant",
+                    "content": f"```\n{msg.content}\n```",
+                    "metadata": {
+                        "title": f"✅ `{msg.name}` result",
+                        "status": "done",
                     }
+                })
                 yield history
 
-            # ── Final answer ──
-            elif isinstance(msg, AIMessage) and not msg.tool_calls and msg.content:
+            # 💬 Final answer
+            elif isinstance(msg, AIMessage) and msg.content:
                 history.append({"role": "assistant", "content": msg.content})
                 yield history
-
-
-AUTOSCROLL_JS = """
-function() {
-    const observer = new MutationObserver(() => {
-        document.querySelectorAll('.chatbot').forEach(el => {
-            el.scrollTop = el.scrollHeight;
-        });
-    });
-    observer.observe(document.body, { childList: true, subtree: true });
-}
-"""
 
 with gr.Blocks(title="Conversational Agent") as demo:   # ✅ Fix 2: js removed from here
 
@@ -88,7 +62,7 @@ with gr.Blocks(title="Conversational Agent") as demo:   # ✅ Fix 2: js removed 
         elem_classes=["chatbot"],
         avatar_images=(
             None,
-            "https://em-content.zobj.net/source/twitter/53/robot-face_1f916.png",
+            "https://img.freepik.com/free-vector/graident-ai-robot-vectorart_78370-4114.jpg",
         ),
     )
 
@@ -118,6 +92,5 @@ with gr.Blocks(title="Conversational Agent") as demo:   # ✅ Fix 2: js removed 
 if __name__ == "__main__":
     demo.launch(
         server_port=7860,
-        share=False,
-        js=AUTOSCROLL_JS,           # ✅ Fix 2: js belongs here in Gradio 6
+        share=False    # ✅ Fix 2: js belongs here in Gradio 6
     )
