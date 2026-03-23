@@ -66,47 +66,24 @@ graph.add_edge("tools", "agent")
 agent = graph.compile()
 
 
-# ----------------- Smoke Test -----------------
+# Smoke Test
 
 # if __name__ == "__main__":
-#     import json
-#     from langchain_core.messages import AIMessage, ToolMessage, SystemMessage
-
-#     def log(emoji: str, label: str, detail: str = ""):
-#         print(f"\n{emoji}  [{label}]" + (f"  →  {detail}" if detail else ""))
-
+#     from agent import run_query     # ← shared utility, verbose=True for CLI output
+ 
 #     queries = [
-#         # "What is the capital of Japan?",
-#         # "I am using Python 3.10 and the langchain library. How do I create a custom tool?",
+#         "What is the capital of Japan?",
+#         "I am using Python 3.10 and the langchain library. How do I create a custom tool?",
 #         "I love football. How do I build a REST API in FastAPI?",
-#         "I am learning LangChain. How do I load a PDF document?"
+#         "I am learning LangChain. How do I load a PDF document?",
 #         "What does AI stand for?",
 #     ]
-
+ 
 #     for query in queries:
 #         print(f"\n{'═'*55}")
 #         print(f"  QUERY: {query}")
 #         print(f"{'═'*55}")
-
-#         # Inject system prompt alongside the user query
-#         for step in agent.stream({"messages": [query]}):
-#             node_name, node_state = next(iter(step.items()))
-#             log("📍", "Node", node_name)
-
-#             for msg in node_state.get("messages", []):
-#                 if isinstance(msg, AIMessage):
-#                     if msg.tool_calls:
-#                         log("💭", "Agent decision", f"Calling {[tc['name'] for tc in msg.tool_calls]}")
-#                         for tc in msg.tool_calls:
-#                             print(f"    Input: {json.dumps(tc['args'], indent=6)}")
-#                     else:
-#                         log("💬", "Agent decision", "Responding directly")
-
-#                 elif isinstance(msg, ToolMessage):
-#                     log("📦", "Tool result", msg.name)
-#                     print(f"    Output: {str(msg.content)[:300]}")
-
-#         final = node_state["messages"][-1]
-#         print(f"\n{'─'*55}")
-#         print(f"  FINAL ANSWER:\n  {final.content}")
-#         print(f"{'─'*55}")
+ 
+#         # Consume the generator — verbose=True prints the CLI trace
+#         *_, (final_history, _) = run_query(agent, query, history=[], verbose=True)
+ 
