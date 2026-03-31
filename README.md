@@ -2,21 +2,6 @@
 
 A smart, verified-answer conversational agent built with **LangGraph**, **LangChain**, **FastAPI**, and **Gradio**. The agent reasons step by step using a set of tools before producing a final answer — making sure every response is grounded and validated.
 
----
-
-## 📖 Table of Contents
-
-- [What does it do?](#what-does-it-do)
-- [Project Structure](#project-structure)
-- [How it works](#how-it-works)
-- [Setup & Installation](#setup--installation)
-- [Running the project](#running-the-project)
-- [API Endpoints](#api-endpoints)
-- [Test Examples](#test-examples)
-- [Switching your LLM](#switching-your-llm)
-- [Troubleshooting](#troubleshooting)
-
----
 
 ## 💡 What does it do?
 
