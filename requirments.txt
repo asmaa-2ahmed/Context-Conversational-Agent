@@ -1,4 +1,0 @@
-langchain-ollama
-langchain_tavily 
-os
-gradio
