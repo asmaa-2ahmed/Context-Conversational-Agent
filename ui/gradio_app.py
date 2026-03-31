@@ -89,8 +89,8 @@ with gr.Blocks(title="Conversational Agent") as demo:   # ✅ Fix 2: js removed 
     clear_btn.click(fn=lambda: [], outputs=chatbot)
 
 
-if __name__ == "__main__":
-    demo.launch(
-        server_port=7860,
-        share=False    # ✅ Fix 2: js belongs here in Gradio 6
-    )
+# if __name__ == "__main__":
+#     demo.launch(
+#         server_port=7860,
+#         share=False   
+#     )
